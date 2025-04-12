@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "sage-vaccine-equity-agent"
+version = "0.1.0"
+description = "Agentic AI platform with MCP tool servers for vaccine coverage equity analysis using UNICEF (8.8M ro"
+authors = [{name = "Kaushik Sarkar", email = "dr.kaushiks@hotmail.com"}]
+license = {text = "MIT"}
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
