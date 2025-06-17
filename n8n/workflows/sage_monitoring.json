@@ -1,0 +1,119 @@
+{
+  "name": "sage-vaccine-equity-agent-monitoring",
+  "nodes": [
+    {
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "name": "Daily Trigger",
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Query SAGE Lake",
+      "position": [
+        450,
+        300
+      ],
+      "parameters": {
+        "url": "https://api.sage-lake.io/observations",
+        "method": "GET",
+        "queryParameters": {
+          "source_org": "WHO",
+          "year_from": "2024"
+        }
+      }
+    },
+    {
+      "type": "n8n-nodes-base.function",
+      "name": "Anomaly Detection",
+      "position": [
+        650,
+        300
+      ],
+      "parameters": {
+        "functionCode": "const data = items[0].json.data;\nconst anomalies = data.filter(d => d.zscore > 3);\nreturn anomalies.map(a => ({json: a}));"
+      }
+    },
+    {
+      "type": "n8n-nodes-base.if",
+      "name": "Has Anomalies?",
+      "position": [
+        850,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.length}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "n8n-nodes-base.slack",
+      "name": "Notify Team",
+      "position": [
+        1050,
+        200
+      ],
+      "parameters": {
+        "channel": "#health-alerts",
+        "text": "=Health anomaly detected: {{$json.country}} - {{$json.indicator}}"
+      }
+    }
+  ],
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Query SAGE Lake"
+          }
+        ]
+      ]
+    },
+    "Query SAGE Lake": {
+      "main": [
+        [
+          {
+            "node": "Anomaly Detection"
+          }
+        ]
+      ]
+    },
+    "Anomaly Detection": {
+      "main": [
+        [
+          {
+            "node": "Has Anomalies?"
+          }
+        ]
+      ]
+    },
+    "Has Anomalies?": {
+      "main": [
+        [
+          {
+            "node": "Notify Team"
+          }
+        ]
+      ]
+    }
+  }
+}
