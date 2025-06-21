@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "sage-lake": {
+      "command": "python",
+      "args": [
+        "mcp/server.py"
+      ],
+      "env": {
+        "SAGE_LAKE_BUCKET": "imacs-mm-foundation-data-prod",
+        "AWS_REGION": "us-east-1"
+      }
+    }
+  }
+}
